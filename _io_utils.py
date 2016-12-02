@@ -94,6 +94,12 @@ def parse_run_args():
     parser.add_argument('-f', '--filename', type=str, help='filename to run')
     return parser.parse_args()
 
+def standardize_input_names():
+    target = "final_inputs"
+    filenames = [file for file in os.listdir(target) if file.endswith(".in") ]
+    mapper = lambda f: (os.path.join(target,f), os.path.join(target, f.split(".in")[0].zfill(4) + ".in" ))
+    [os.rename(*mapper(f)) for f in filenames]
+
 def main():
     # filename = "data/sample2.in"
     filename = "data/generated1.in"
@@ -102,7 +108,7 @@ def main():
     graph.display()
 
 if __name__ == '__main__':
-    make_datafile()
-    main()
-
+    # make_datafile()
+    # main()
+    standardize_input_names()
 
