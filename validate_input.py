@@ -40,7 +40,8 @@ def validate_file(filename):
     perfs = OD()
     try:
         if text[0] != text[0].strip():
-            raise(ExtraSpaces("Found extra spaces on line 0"))
+            print("Found extra spaces on line 0")
+            # raise(ExtraSpaces("Found extra spaces on line 0"))
         horses = int(text[0])
         if horses > 500:
             raise(TooManyHorses("%s horses is too damn high" % horses))

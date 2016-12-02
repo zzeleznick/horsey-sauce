@@ -100,6 +100,21 @@ def standardize_input_names():
     mapper = lambda f: (os.path.join(target,f), os.path.join(target, f.split(".in")[0].zfill(4) + ".in" ))
     [os.rename(*mapper(f)) for f in filenames]
 
+def segment_easy_graphs():
+    target = "output"
+    filenames = [file for file in os.listdir(target) if file.endswith(".txt") ]
+    expected_size = 20
+    easy = []
+    for fname in filenames:
+        with open(os.path.join(target, fname)) as f:
+            for i, l in enumerate(f, 1):
+                pass
+        if i < expected_size:
+            easy.append(fname)
+    outname = "_easy.txt"
+    with open(os.path.join(target, outname), "w") as outfile:
+        outfile.write("\n".join(easy))
+
 def main():
     # filename = "data/sample2.in"
     filename = "data/generated1.in"
@@ -110,5 +125,5 @@ def main():
 if __name__ == '__main__':
     # make_datafile()
     # main()
-    standardize_input_names()
-
+    # standardize_input_names()
+    segment_easy_graphs()
