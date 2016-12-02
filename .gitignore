@@ -12,3 +12,6 @@ ref/
 logs/
 *.log
 *.output/
+
+# Project Specific
+final_inputs/
