@@ -1,0 +1,14 @@
+# Python Ignore
+*.pyc
+__pycache__/
+
+# Mac Ignore
+.DS_Store
+
+# General Ignore
+output/
+build/
+ref/
+logs/
+*.log
+*.output/
