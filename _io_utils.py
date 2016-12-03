@@ -145,7 +145,7 @@ def get_best_seeds():
     is_match = lambda f: re.compile(r'\d+.*\.txt').match(f)
     filenames = [file for file in os.listdir(target) if is_match(file) ]
     results = OD(zip(range(1, 601), [(0,'S',-1)]*600))
-    scores = OD(zip(range(1, 601), [0]*600))
+    scores = OD(zip(range(1, 601), [-1]*600))
     for fname in filenames:
         idx = int(fname.split("_")[0])
         method = fname.split("_")[-1].split(".")[0][0].upper()
@@ -160,6 +160,7 @@ def get_best_seeds():
             results[idx] = (score, method, seed)
     with open(os.path.join(target, outname), "w") as outfile:
         outfile.write("\n".join("%s, %s, %s" % (t[0], t[1], t[2]) for t in results.values()))
+    print("Sum of all seed scores: %s" % sum(scores.values()))
 
 def condense_paths():
     target = "paths"
@@ -167,7 +168,7 @@ def condense_paths():
     is_match = lambda f: re.compile(r'\d+.*\.txt').match(f)
     filenames = [file for file in os.listdir(target) if is_match(file) ]
     results = OD(zip(range(1, 601), ['MISSING']*600))
-    scores = OD(zip(range(1, 601), [0]*600))
+    scores = OD(zip(range(1, 601), [-1]*600))
     for fname in filenames:
         idx = int(fname.split("_")[0])
         with open(os.path.join(target, fname)) as f:
@@ -182,11 +183,11 @@ def condense_paths():
         if score > val:
             scores[idx] = score
             results[idx] = text
-            if val != 0:
+            if val > 0:
                 print("(%s) Found better score %s > %s" % (idx, score, val))
     with open(os.path.join(target, outname), "w") as outfile:
         outfile.write("\n".join(results.values()))
-    print("Sum of all scores: %s" % sum(scores.values()))
+    print("Sum of all true scores: %s" % sum(scores.values()))
     print("HP COUNT:", sum(0 if t.count(';') else 1 for t in results.itervalues()))
 
 def find_57():
