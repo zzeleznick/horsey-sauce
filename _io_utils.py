@@ -106,11 +106,13 @@ def standardize_input_names():
 def segment_easy_graphs():
     target = "output"
     outname = "_easy.txt"
-    is_match = lambda f: re.compile(r'\d*.*\.txt').match(f)
+    is_match = lambda f: re.compile(r'\d+.*\.txt').match(f)
     filenames = [file for file in os.listdir(target) if is_match(file) ]
     expected_size = 20
+    results = OD(zip(range(1, 601), [False]*600))
     easy = []
     for fname in filenames:
+        idx = int(fname.split("_")[0])
         with open(os.path.join(target, fname)) as f:
             for i, l in enumerate(f, 1):
                 pass
@@ -142,16 +144,22 @@ def get_best_seeds():
     outname = "_seeds.txt"
     is_match = lambda f: re.compile(r'\d+.*\.txt').match(f)
     filenames = [file for file in os.listdir(target) if is_match(file) ]
-    results = OD(zip(range(1, 601), [(0,-1)]*600))
+    results = OD(zip(range(1, 601), [(0,'S',-1)]*600))
+    scores = OD(zip(range(1, 601), [0]*600))
     for fname in filenames:
         idx = int(fname.split("_")[0])
+        method = fname.split("_")[-1].split(".")[0][0].upper()
         with open(os.path.join(target, fname)) as f:
             lines = f.readlines()
             # assume sorted lo -> hi
-            best, seed = lines[-1].split(",")
-        results[idx] = (best, seed)
+            score, seed = lines[-1].split(",")
+            score = int(score)
+        val = scores[idx]
+        if score > val:
+            scores[idx] = score
+            results[idx] = (score, method, seed)
     with open(os.path.join(target, outname), "w") as outfile:
-        outfile.write("\n".join("%s, %s" % (t[0], t[1]) for t in results.values()))
+        outfile.write("\n".join("%s, %s, %s" % (t[0], t[1], t[2]) for t in results.values()))
 
 def condense_paths():
     target = "paths"
@@ -170,13 +178,12 @@ def condense_paths():
                 path = " ".join("%s" % el for el in eval(line.split(':')[-1]))
                 path_cover.append(path)
             text = "; ".join(path for path in path_cover)
-        results[idx] = text
         val = scores[idx]
-        if val == 0:
+        if score > val:
             scores[idx] = score
-        elif score > val:
-            scores[idx] = score
-            print("(%s) Found better score %s > %s" % (idx, score, val))
+            results[idx] = text
+            if val != 0:
+                print("(%s) Found better score %s > %s" % (idx, score, val))
     with open(os.path.join(target, outname), "w") as outfile:
         outfile.write("\n".join(results.values()))
 
