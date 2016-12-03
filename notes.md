@@ -1,19 +1,57 @@
 ## Hard Inputs
 
+Divergent Results (lo, hi)
+307: 2364323, 12348875 (65)
+416: 5873665, 11751500 (1)
+556: 6385483, 12249408 (49)
+396: 2010492, 7155918 (10)
+130: USE DFS 7132304 < 9159450
+
+DFS > Sets
+003, 130, 396
+
+
 Long Runtimes
-- 70.in
+- 70.in (* 112K edge, slowasf) [SOLVED]
+    vertices go 1..50, edges are i+50...
+    path 0 50 100 150 200 250 300 350 400 450; ... 49, 99 .. 499
+    50 paths each length 10, average of 25 per v
+    10**2*25*50: 125000
 - 229.in
-- 230.in
-- 231.in
-- 271.in
-- 272.in
-- 273.in
+- 230.in [9 minutes]
+- 231.in [9 minutes]
+- 271.in [15 minutes]
+- 272.in [7 minutes]
+- 273.in [13 minutes]
 - 336.in
 - 356.in
 - 406.in
 - 407.in
 - 408.in
-- 461.in
+- 462.in
+- 581.in (* 84K edge)
+- 582.in (* 73K edge)
+- 590.in (* 245K edges)
+
+Ours
+- 448.in
+    5,420,063 (14)
+- 449.in
+    Note that our best is right now 3,495,378 (10) | 4,837,785 (224)
+    But, weston got 10,035,223
+- 450.in
+    3,876,251 (14) | 5,572,087 (269)
+
+## Todos
+- compare dfs with sets for select inputs
+- ensure we take the best output (dfs/sets)
+- check for dags => dag longest path
+- check alternate algs ?
+
+## Timing
+33 minutes for 1-500.in
+
+## Notes
 
 Path Length ~= (Score/50)**.5
 

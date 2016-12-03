@@ -93,6 +93,7 @@ def supress_stdout(func):
 def parse_run_args():
     parser = argparse.ArgumentParser(add_help=True, description="Run algorithm against graph input")
     parser.add_argument('-f', '--filename', type=str, help='filename to run')
+    parser.add_argument('-r', '--reps', type=int, default=20, help='number of trials')
     parser.add_argument('-s', '--seed', type=int, help='random seed and then save')
     return parser.parse_args()
 
@@ -158,16 +159,24 @@ def condense_paths():
     is_match = lambda f: re.compile(r'\d+.*\.txt').match(f)
     filenames = [file for file in os.listdir(target) if is_match(file) ]
     results = OD(zip(range(1, 601), ['MISSING']*600))
+    scores = OD(zip(range(1, 601), [0]*600))
     for fname in filenames:
         idx = int(fname.split("_")[0])
         with open(os.path.join(target, fname)) as f:
             lines = f.readlines()
             path_cover = []
+            score = int(lines[0].split(':')[-1].strip())
             for line in lines[2:]:
                 path = " ".join("%s" % el for el in eval(line.split(':')[-1]))
                 path_cover.append(path)
             text = "; ".join(path for path in path_cover)
         results[idx] = text
+        val = scores[idx]
+        if val == 0:
+            scores[idx] = score
+        elif score > val:
+            scores[idx] = score
+            print("(%s) Found better score %s > %s" % (idx, score, val))
     with open(os.path.join(target, outname), "w") as outfile:
         outfile.write("\n".join(results.values()))
 
