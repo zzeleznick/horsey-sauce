@@ -1,5 +1,6 @@
 from __future__ import print_function
 import os, sys
+import re
 import random
 import argparse
 from copy import deepcopy
@@ -102,7 +103,9 @@ def standardize_input_names():
 
 def segment_easy_graphs():
     target = "output"
-    filenames = [file for file in os.listdir(target) if file.endswith(".txt") ]
+    outname = "_easy.txt"
+    is_match = lambda f: re.compile(r'\d*.*\.txt').match(f)
+    filenames = [file for file in os.listdir(target) if is_match(file) ]
     expected_size = 20
     easy = []
     for fname in filenames:
@@ -111,9 +114,26 @@ def segment_easy_graphs():
                 pass
         if i < expected_size:
             easy.append(fname)
-    outname = "_easy.txt"
     with open(os.path.join(target, outname), "w") as outfile:
         outfile.write("\n".join(easy))
+
+def segment_targets():
+    target = "output"
+    outname = "_segments.txt"
+    is_match = lambda f: re.compile(r'\d+.*\.txt').match(f)
+    filenames = [file for file in os.listdir(target) if is_match(file) ]
+    parse = lambda line: int(line.strip().split(',')[0])
+    targets = []
+    for fname in filenames:
+        idx = int(fname.split("_")[0])
+        with open(os.path.join(target, fname)) as f:
+            lines = f.readlines()
+            scores = [ parse(line) for line in lines if line.strip() ]
+            delta  = (idx, max(scores) - min(scores))
+        targets.append(delta)
+    with open(os.path.join(target, outname), "w") as outfile:
+        st = sorted(targets, key=lambda x: -x[1])
+        outfile.write("\n".join("%s, %s" % (t[0], t[1]) for t in st))
 
 def main():
     # filename = "data/sample2.in"
@@ -126,4 +146,5 @@ if __name__ == '__main__':
     # make_datafile()
     # main()
     # standardize_input_names()
-    segment_easy_graphs()
+    # segment_easy_graphs()
+    segment_targets()
