@@ -186,6 +186,8 @@ def condense_paths():
                 print("(%s) Found better score %s > %s" % (idx, score, val))
     with open(os.path.join(target, outname), "w") as outfile:
         outfile.write("\n".join(results.values()))
+    print("Sum of all scores: %s" % sum(scores.values()))
+    print("HP COUNT:", sum(0 if t.count(';') else 1 for t in results.itervalues()))
 
 def find_57():
     target = "final_inputs"
