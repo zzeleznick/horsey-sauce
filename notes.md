@@ -8,12 +8,14 @@ Long Runtimes
 - 271.in
 - 272.in
 - 273.in
+- 336.in
+- 356.in
 
 Path Length ~= (Score/50)**.5
 
 Note:
 500**2*50 = 12,500,000
-497**2*50 = 12,350,450
+480**2*50 = 11,520,000
 
 If ranking is based on sum(scores)
 the biggest differentiators will be on graphs
@@ -36,6 +38,12 @@ def pdelta(p,x):
     s = (p)**2*50
     s2 = (p+x)**2*50
     return s2-s
+
+In [100]: pdelta(460, 40)
+Out[100]: 1920000
+
+In [98]: pdelta(420, 40)
+Out[98]: 1760000
 
 In [66]: pdelta(380, 40)
 Out[66]: 1600000

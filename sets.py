@@ -102,27 +102,29 @@ def prefix_extend(graph, path):
     verify_path(graph, prefix)
     return prefix
 
-def find_and_save_path(name, seed):
-    edges, perfs = validate_file(name)
-    graph = make_weighted_graph(edges, perfs)
-    caller = supress_stdout(find_cover)
+def find_and_save_path(filename, seed):
+    fpath = "final_inputs/%s" % filename
+    graph = make_weighted_graph(*validate_file(fpath))
     random.seed(seed)
+    caller = supress_stdout(find_cover)
     res = caller(deepcopy(graph), find_sets)
-    outname = "%s_path_%s.txt" % (name.replace(".in", ""), str(seed).zfill(4))
+    outname = "paths/%s_%s.txt" % (filename.replace(".in", ""), str(seed).zfill(4))
     save_path(res, outname)
+
+def gen_scores(filename, r=20):
+    fpath = "final_inputs/%s" % filename
+    graph = make_weighted_graph(*validate_file(fpath))
+    scores = repeat_find_cover(graph, find_sets, r)
+    outname = "output/%s_sets.txt" % filename.split(".in")[0]
+    save_scores(scores, outname)
 
 def main():
     args = parse_run_args()
     filename = args.filename if args.filename else "1.in"
-    path = "final_inputs/%s" % filename
-    # """
-    edges, perfs = validate_file(path)
-    graph = make_weighted_graph(edges, perfs)
-    scores = repeat_find_cover(graph, find_sets, 20)
-    outname = "output/%s_sets.txt" % filename.split(".in")[0]
-    save_scores(scores, outname)
-    # """
-    # find_and_save_path(path, 4)
+    if args.seed == None:
+        gen_scores(filename)
+    else:
+        find_and_save_path(filename, args.seed)
 
 if __name__ == '__main__':
     main()
