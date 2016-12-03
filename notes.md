@@ -10,6 +10,10 @@ Long Runtimes
 - 273.in
 - 336.in
 - 356.in
+- 406.in
+- 407.in
+- 408.in
+- 461.in
 
 Path Length ~= (Score/50)**.5
 

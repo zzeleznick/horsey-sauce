@@ -164,7 +164,7 @@ def condense_paths():
             lines = f.readlines()
             path_cover = []
             for line in lines[2:]:
-                path = ", ".join("%s" % el for el in eval(line.split(':')[-1]))
+                path = " ".join("%s" % el for el in eval(line.split(':')[-1]))
                 path_cover.append(path)
             text = "; ".join(path for path in path_cover)
         results[idx] = text
@@ -199,11 +199,8 @@ def main():
     graph.display()
 
 if __name__ == '__main__':
-    # make_datafile()
-    # main()
     # standardize_input_names()
-    # segment_easy_graphs()
+    segment_easy_graphs()
     segment_targets()
-    # find_57()
     get_best_seeds()
     condense_paths()
