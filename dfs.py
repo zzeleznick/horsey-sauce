@@ -110,6 +110,8 @@ def find_and_save_path(filename, seed):
     fpath = "final_inputs/%s" % filename
     graph = make_weighted_graph(*validate_file(fpath))
     random.seed(seed)
+    # REQUIRED for DFS!
+    np.random.seed(seed)
     caller = supress_stdout(find_cover)
     res = caller(deepcopy(graph), find_sets)
     outname = "paths/%s_%s_dfs.txt" % (filename.replace(".in", ""), str(seed).zfill(4))

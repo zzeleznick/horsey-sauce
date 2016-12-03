@@ -8,7 +8,7 @@ Divergent Results (lo, hi)
 130: USE DFS 7132304 < 9159450
 
 DFS > Sets
-003, 130, 396
+3, 31, 130, 396, 558
 
 
 Long Runtimes
