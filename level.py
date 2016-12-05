@@ -4,72 +4,81 @@ import os, sys
 from copy import deepcopy
 from collections import OrderedDict as OD
 from collections import Counter, deque
-
+from heapq import *
 # Internal Modules
 from validate_input import validate_file
 from _io_utils import parse_run_args, make_weighted_graph, supress_stdout, save_scores, save_path
 from _shared import reverse, find_cover, repeat_find_cover, verify_path
 
-def get_sample_size(graph):
-    edges = graph.edgelist
-    vertices = graph.vertices
-    sample_size = min(len(vertices), 20)
-    print(len(vertices), len(edges), sample_size)
-    return sample_size
-
+'''
+Heap with shuffled vertices and level 1
+Dict of visited vertices (explored), and highest level
+Heap acts as the fringe
+Add all vertices to the heap with path distances as values
+Only add children if we haven't already popped it
+once the heap is empty, we want to construct a path from the highest vertex
+'''
 def find_sets(graph):
     edges = [ pair for (pair, w) in graph.edgelist ]
     vertices = graph.vertices.keys()
     if not edges:
         return [ random.choice(vertices) ]
-    paths = OD()
-    sample_size = get_sample_size(graph)
-    # print(edges)
     def calc_score(vertices):
         return len(vertices) * sum(graph[v].value for v in vertices)
-    starter_verts = [vertices[k] for k in random.sample(xrange(len(vertices)), sample_size) ]
-    PREV = [(calc_score([v]), OD([(v, True)]) ) for v in starter_verts ]
-    s,p = random.choice(PREV)
-    best_score = s
-    best_path = p.keys()
-    print("Intialized best path to %s" % best_path)
-    for i in range(1, len(graph.vertices)):
-        print("Iteration %s | Size: %s" % (i, len(PREV)))
-        if not PREV:
-            break
-        elif len(PREV) > 500:
-            selection = PREV[:]
-            random.shuffle(selection)
-            PREV = selection[:500]
-            print("Iteration %s | Size: %s" % (i, len(PREV)))
-        starter_verts = [vertices[k] for k in random.sample(xrange(len(vertices)), sample_size) ]
-        CUR = []
-        for score, path in PREV:
-            next_path = deepcopy(path)
-            last, val = next_path.popitem()
-            next_path[last] = val
-            for v in starter_verts:
-                if graph[last].get(v) and v not in next_path:
-                    alt_path = deepcopy(next_path)
-                    alt_path[v] = True
-                    next_score = calc_score(alt_path.keys())
-                    CUR.append((next_score, alt_path))
-                    if next_score >= best_score:
-                        update_prob = min(.99, math.log(float(next_score+1)/(best_score+1)))
-                        if update_prob > random.random():
-                            best_score = next_score
-                            best_path = alt_path.keys()
-        PREV = CUR
-    # exit()
-    for i, path in paths.iteritems():
-        print(i, path)
+
+    visited = OD()
+    h = [ (1,v) for v in vertices ]
+    random.shuffle(h)
+    levels = OD()
+    levels[1] = OD(zip([t[1] for t in h], ['NULL']*len(h)))
+    heapify(h)
+
+    best_path = [random.choice(vertices)]
+    best_score = calc_score(best_path)
+    i = 0
+    while h:
+        print("Iteration %s" % i)
+        i += 1
+        lv, node = heappop(h)
+        if node in visited:
+            continue
+        if random.random() > 0.5:
+            visited[node] = True
+        for child in graph[node].edges:
+            if not levels.get(lv+1):
+                levels[lv+1] = OD([(child, node)])
+            else:
+                levels[lv+1][child] = node
+            if child not in visited:
+                heappush(h, (lv+1, child))
+
+    for (k,v) in levels.iteritems():
+        print(k,v)
+
+    depth = max(levels.keys())
+    start = random.choice(levels[depth].keys())
+    prev = levels[depth][start]
+    path = OD([(start, True)])
+    print("Backtracking")
+    for j in range(depth-1, 0, -1):
+        # print(j, prev, path.keys())
+        if prev != 'NULL':
+            path[prev] = True
+        prev = levels[j][prev]
+
+    best_path = [k for k in reversed(path.keys())]
+    best_score = calc_score(best_path)
+
     print(best_score, best_path)
     verify_path(graph, best_path)
+    return best_path
+    '''
     if 0.99 > random.random():
         best_path = dfs_extend(graph, best_path)
     if 0.99 > random.random():
         best_path = prefix_extend(graph, best_path)
     return best_path
+    '''
 
 def dfs_extend(graph, path):
     mod_path = OD(zip(path, [True]*len(path)))
@@ -125,15 +134,15 @@ def find_and_save_path(filename, seed):
 def gen_scores(filename, r=20):
     fpath = "final_inputs/%s" % filename
     graph = make_weighted_graph(*validate_file(fpath))
+    # find_sets(graph)
     # scores = repeat_find_cover(graph, find_sets, r)
-    random.seed(12)
     find_cover(graph, find_sets)
-    outname = "output/%s_hail.txt" % filename.split(".in")[0]
+    # outname = "output/%s_hail.txt" % filename.split(".in")[0]
     # save_scores(scores, outname)
 
 def main():
     args = parse_run_args()
-    filename = args.filename if args.filename else "1.in"
+    filename = args.filename if args.filename else "0026.in"
     reps = args.reps
     if filename == "0070.in":
         print("Activating Hack")
