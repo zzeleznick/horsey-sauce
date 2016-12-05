@@ -161,6 +161,11 @@ def get_best_seeds():
     with open(os.path.join(target, outname), "w") as outfile:
         outfile.write("\n".join("%s, %s, %s" % (t[0], t[1], t[2]) for t in results.values()))
     print("Sum of all seed scores: %s" % sum(scores.values()))
+    for (idx, (score, method, seed)) in results.iteritems():
+        suffix = '' if method == 'S' else '_dfs' if method == 'D' else '_hail'
+        expected_name = "paths/%s_%s%s.txt" % (str(idx).zfill(4), str(int(seed)).zfill(4), suffix)
+        if not os.path.exists(expected_name):
+            print("No path file found for %s" % expected_name)
 
 def condense_paths():
     target = "paths"
@@ -184,7 +189,7 @@ def condense_paths():
             scores[idx] = score
             results[idx] = text
             if val > 0:
-                print("(%s) Found better score %s > %s" % (idx, score, val))
+                pass # print("(%s) Found better score %s > %s" % (idx, score, val))
     with open(os.path.join(target, outname), "w") as outfile:
         outfile.write("\n".join(results.values()))
     print("Sum of all true scores: %s" % sum(scores.values()))

@@ -30,7 +30,7 @@ def main():
                 print("%s: No seed found" % idx)
                 continue
             method = line.split(",")[1].strip()
-            program = "dfs.py" if method == 'D' else "sets.py"
+            program = "dfs.py" if method == 'D' else "hail.py" if method == 'H' else "sets.py"
             fname = "%s.in" % str(idx).zfill(4)
             args = ["python", program, "-f", fname, "-s", seed]
             print("Running %s" % args)
