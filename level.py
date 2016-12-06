@@ -10,6 +10,10 @@ from validate_input import validate_file
 from _io_utils import parse_run_args, make_weighted_graph, supress_stdout, save_scores, save_path
 from _shared import reverse, find_cover, repeat_find_cover, verify_path
 
+# External Modules
+from tarjan import tarjan
+from tarjan.tc import tc
+import numpy as np
 '''
 Heap with shuffled vertices and level 1
 Dict of visited vertices (explored), and highest level
@@ -27,8 +31,23 @@ def find_sets(graph):
         return len(vertices) * sum(graph[v].value for v in vertices)
 
     visited = OD()
+
+    t_input = {v: graph[v].edges.keys() for v in graph.vertices}
+    scc_index = random.choice(vertices)
+    max_scc = 0
+    closure = tc(t_input)
+    for idx, path in closure.iteritems():
+        if len(path) > max_scc:
+            max_scc = len(path)
+            scc_index = idx
+
+    best_path = [scc_index]
+    '''
     h = [ (1,v) for v in vertices ]
     random.shuffle(h)
+    '''
+    h = [(1, scc_index)]
+
     levels = OD()
     levels[1] = OD(zip([t[1] for t in h], ['NULL']*len(h)))
     heapify(h)
@@ -40,17 +59,19 @@ def find_sets(graph):
         print("Iteration %s" % i)
         i += 1
         lv, node = heappop(h)
+        nxt = abs(lv)+1
         if node in visited:
             continue
-        if random.random() > 0.5:
-            visited[node] = True
-        for child in graph[node].edges:
-            if not levels.get(lv+1):
-                levels[lv+1] = OD([(child, node)])
+        visited[node] = True
+        children = graph[node].edges.keys()
+        random.shuffle(children)
+        for child in children:
+            if not levels.get(nxt):
+                levels[nxt] = OD([(child, node)])
             else:
-                levels[lv+1][child] = node
+                levels[nxt][child] = node
             if child not in visited:
-                heappush(h, (lv+1, child))
+                heappush(h, (-nxt, child))
 
     for (k,v) in levels.iteritems():
         print(k,v)
@@ -63,7 +84,11 @@ def find_sets(graph):
     for j in range(depth-1, 0, -1):
         # print(j, prev, path.keys())
         if prev != 'NULL':
+            if prev in path:
+                break
             path[prev] = True
+        else:
+            break
         prev = levels[j][prev]
 
     best_path = [k for k in reversed(path.keys())]
@@ -71,23 +96,29 @@ def find_sets(graph):
 
     print(best_score, best_path)
     verify_path(graph, best_path)
-    return best_path
-    '''
+
     if 0.99 > random.random():
-        best_path = dfs_extend(graph, best_path)
+        best_path = dfs_extend(graph, best_path, closure)
     if 0.99 > random.random():
         best_path = prefix_extend(graph, best_path)
     return best_path
-    '''
 
-def dfs_extend(graph, path):
+def dfs_extend(graph, path, closure):
     mod_path = OD(zip(path, [True]*len(path)))
     last, val = mod_path.popitem()
     mod_path[last] = True
     edges = graph[last].edges
     choices = [e for e in edges if e not in mod_path ]
     while choices:
-        last = random.choice(choices)
+        weights = np.array([np.e ** float(len(closure[e])) for e in choices]) + \
+                  np.array([np.e ** float(len(closure[e])) for e in choices])
+        total = np.sum(weights)
+        if total <= 0:
+            break
+        weights /= total
+        last = np.random.choice(choices, p=weights)
+        if random.random() > 0.5:
+            last = random.choice(choices)
         mod_path[last] = True
         edges = graph[last].edges
         choices = [e for e in edges if e not in mod_path ]
@@ -135,8 +166,10 @@ def gen_scores(filename, r=20):
     fpath = "final_inputs/%s" % filename
     graph = make_weighted_graph(*validate_file(fpath))
     # find_sets(graph)
-    # scores = repeat_find_cover(graph, find_sets, r)
-    find_cover(graph, find_sets)
+    scores = repeat_find_cover(graph, find_sets, r)
+    # random.seed(0)
+    # np.random.seed(0)
+    # find_cover(graph, find_sets)
     # outname = "output/%s_hail.txt" % filename.split(".in")[0]
     # save_scores(scores, outname)
 
