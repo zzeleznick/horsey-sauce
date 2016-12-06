@@ -82,10 +82,13 @@ def find_sets(graph):
     path = OD([(start, True)])
     print("Backtracking")
     for j in range(depth-1, 0, -1):
-        # print(j, prev, path.keys())
+        print(j, prev, path.keys())
         if prev != 'NULL':
             if prev in path:
-                break
+                print("ERROR: Prev in path")
+            if prev == path.keys()[0]:
+                path.popitem(last=False)
+            # print("Adding %s to %s" % (prev, path.keys()))
             path[prev] = True
         else:
             break
@@ -167,6 +170,7 @@ def find_and_save_path(filename, seed):
 def gen_scores(filename, r=20):
     fpath = "final_inputs/%s" % filename
     graph = make_weighted_graph(*validate_file(fpath))
+    # random.seed(10)
     # find_sets(graph)
     scores = repeat_find_cover(graph, find_sets, r)
     outname = "output/%s_level.txt" % filename.split(".in")[0]
